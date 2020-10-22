@@ -1,17 +1,24 @@
-import React, { useState, useEffect, useMemo } from "react";
-import axios from "axios";
-import { useHistory } from "react-router-dom";
+import React, { useState, useEffect } from "react";
 import Header from "../components/Header";
 import MapDisplay from "../components/MapDisplay";
 import Dashboard from "../components/Dashboard";
 import Geolocation from "../components/Geolocation";
+import { geolocated } from "react-geolocated";
 
-function Home() {
+function Home(props) {
+  const [location, setLocation] = useState(null);
+
+  useEffect(() => {
+    if (props) {
+      setLocation(props.coords);
+    }
+  }, [props]);
+
   return (
     <div>
       <Header />
       <div className="Home">
-        <MapDisplay />
+        <MapDisplay location={location} />
         <Dashboard />
         <Geolocation />
       </div>
@@ -19,4 +26,9 @@ function Home() {
   );
 }
 
-export default Home;
+export default geolocated({
+  positionOptions: {
+    enableHighAccuracy: false,
+  },
+  userDecisionTimeout: 5000,
+})(Home);
