@@ -1,15 +1,26 @@
 import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import DataBlock from "../components/DataBlock";
+import Geocode from "react-geocode";
 
 function Dashboard({ location }) {
   const [fireData, setFireData] = useState(null);
-  const [fireLikelihood, setFireLikelihood] = useState(null);
+  const [fireLikelihood, setFireLikelihood] = useState("Loading...");
   const [center, setCenter] = useState(null);
+  const [zip, setZip] = useState(null);
 
   useEffect(() => {
     if (location) {
       setCenter({ lat: location.latitude, lng: location.longitude });
+      Geocode.setApiKey(process.env.REACT_APP_MAPS_KEY);
+      Geocode.fromLatLng(location.latitude, location.longitude).then(
+        (response) => {
+          setZip(response.results[0].address_components[7].long_name);
+        },
+        (error) => {
+          console.error(error);
+        }
+      );
     }
   }, [location]);
 
@@ -23,10 +34,8 @@ function Dashboard({ location }) {
           }
         )
         .then(function (response) {
-          console.log("response", response);
           setFireData(response);
           if (response.data.message == "No active fire data found") {
-            console.log("Couldn't find data!");
             setFireLikelihood("Unlikely");
           } else {
             let distance = response.data.data[0].distance;
@@ -38,15 +47,18 @@ function Dashboard({ location }) {
               setFireLikelihood("Somewhat Unlikely");
             }
           }
-          if (fireLikelihood !== null) {
-            console.log("fireLikelihood", fireLikelihood);
-          }
         })
         .catch(function (error) {
           console.log("error", error);
         });
     }
   }, [center]);
+
+  useEffect(() => {
+    if (zip != null) {
+      console.log("ZIP", zip);
+    }
+  }, [zip]);
 
   return (
     <div className="Dashboard">

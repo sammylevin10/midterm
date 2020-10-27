@@ -6,22 +6,22 @@ file = open("ZIP-COUNTY-FIPS_2018-03.csv", "r")
 for line in file:
     line = line.split(",")
     mapping[line[1]] = line[0]
-#mapping the county to zip codes
+# mapping the county to zip codes
 
 mask_file = open("mask-use-by-county.csv", "r")
 
-new_file = open("results.csv","w")
+new_file = open("results.csv", "w")
 writer = csv.writer(new_file)
 elements = []
-#elements is list of lists, each list contained in list is a line to the CSV
+# elements is list of lists, each list contained in list is a line to the CSV
 first = True
-#this is for checking we are not on the first line
+# this is for checking we are not on the first line
 
 
 for mask_line in mask_file:
     sub_ele = []
     mask_line = mask_line.split(",")
-    if first: 
+    if first:
         first = False
         sub_ele.append("Zip Code")
         sub_ele += mask_line[1:]
@@ -38,4 +38,3 @@ for mask_line in mask_file:
 
 for shit in elements:
     writer.writerow(shit)
-
