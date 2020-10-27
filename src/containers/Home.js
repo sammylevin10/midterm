@@ -19,7 +19,7 @@ function Home(props) {
       <Header />
       <div className="Home">
         <MapDisplay location={location} />
-        <Dashboard />
+        <Dashboard location={location} />
         <Geolocation />
       </div>
     </div>

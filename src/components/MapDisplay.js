@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import GoogleMapReact from "google-map-react";
+import DataBlock from "../components/DataBlock";
 
 function MapDisplay({ location }) {
   const [center, setCenter] = useState(null);
