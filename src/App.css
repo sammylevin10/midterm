@@ -67,11 +67,11 @@ Header {
 .DataBlock-Data {
   margin: 0;
   padding: 20px 10px 10px 10px;
-  font-size: 100px;
+  font-size: 70px;
   text-align: center;
 }
 
-.DataBlock:nth-child(3) .DataBlock-Data {
+/* .DataBlock:nth-child(3) .DataBlock-Data {
   padding: 40px 10px 10px 10px;
   font-size: 60px;
-}
+} */
