@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import DataBlock from "../components/DataBlock";
-import GoogleMapReact from "google-map-react";
 
 function Dashboard({ location }) {
   const [fireData, setFireData] = useState(null);
+  const [fireLikelihood, setFireLikelihood] = useState(null);
   const [center, setCenter] = useState(null);
 
   useEffect(() => {
@@ -13,7 +13,6 @@ function Dashboard({ location }) {
     }
   }, [location]);
 
-  // This occurs when the page loads
   useEffect(() => {
     if (center != null) {
       axios
@@ -24,14 +23,26 @@ function Dashboard({ location }) {
           }
         )
         .then(function (response) {
-          // handle success
           console.log("response", response);
-          // console.log("LOCATION", center);
-          // setFireData(response);
-          // console.log("response", response);
+          setFireData(response);
+          if (response.data.message == "No active fire data found") {
+            console.log("Couldn't find data!");
+            setFireLikelihood("Unlikely");
+          } else {
+            let distance = response.data.data[0].distance;
+            if (0 < distance && distance <= 30) {
+              setFireLikelihood("Likely");
+            } else if (30 < distance && distance <= 100) {
+              setFireLikelihood("Somewhat Likely");
+            } else if (100 < distance) {
+              setFireLikelihood("Somewhat Unlikely");
+            }
+          }
+          if (fireLikelihood !== null) {
+            console.log("fireLikelihood", fireLikelihood);
+          }
         })
         .catch(function (error) {
-          // handle error
           console.log("error", error);
         });
     }
@@ -41,12 +52,14 @@ function Dashboard({ location }) {
     <div className="Dashboard">
       <h1>Hmmmm... might be best to stay inside today.</h1>
       <div className="DataBlocks">
-        <DataBlock text={"Probability of unmasked encounter"} percentage={1} />
-        <DataBlock text={"Probability of COVID encounter"} percentage={2} />
-        <DataBlock
-          text={"Probability of local wildfire today"}
-          percentage={3}
-        />
+        <DataBlock text={"Probability of unmasked encounter"} data={1} />
+        <DataBlock text={"Probability of COVID encounter"} data={2} />
+        {fireLikelihood !== null && (
+          <DataBlock
+            text={"Probability of local wildfire today"}
+            data={fireLikelihood}
+          />
+        )}
       </div>
     </div>
   );

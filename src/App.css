@@ -70,3 +70,8 @@ Header {
   font-size: 100px;
   text-align: center;
 }
+
+.DataBlock:nth-child(3) .DataBlock-Data {
+  padding: 40px 10px 10px 10px;
+  font-size: 60px;
+}
