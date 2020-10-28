@@ -12,6 +12,12 @@ function Dashboard({ location }) {
   const [zip, setZip] = useState(null);
   const [maskData, setMaskData] = useState("Loading...");
   const [covidData, setCovidData] = useState("Loading...");
+  const [status, setStatus] = useState({
+    mask: 0.5,
+    covid: 0.5,
+    fire: 0.5,
+  });
+  const [phrase, setPhrase] = useState("");
 
   useEffect(() => {
     if (location) {
@@ -64,8 +70,7 @@ function Dashboard({ location }) {
       for (var i = 0; i < len1; i++) {
         if (MaskJSON[i].ZIP == zip) {
           let probability = (1 - MaskJSON[i].ALWAYS) * 100;
-          let percentage = probability.toString() + "%";
-          setMaskData(percentage);
+          setMaskData(probability);
         }
       }
       var len2 = Object.keys(CovidJSON).length;
@@ -77,25 +82,68 @@ function Dashboard({ location }) {
     }
   }, [zip]);
 
+  useEffect(() => {
+    console.log(fireLikelihood, maskData, covidData);
+    // Handle maskData to generate status.mask
+    let maskStatus = (maskData / 100) * 2;
+    // Handle covidData to generate status.covid
+    const baseline = 2817; //The average number of cumulative covid cases per US county
+    let covidStatus = (0.5 * covidData) / baseline;
+    // Handle fireLikehood to generate status.fire
+    let fireStatus = 0.5;
+    if (fireLikelihood == "Unlikely") {
+      fireStatus = 0;
+    } else if (fireLikelihood == "Somewhat Unlikely") {
+      fireStatus = 0.33;
+    } else if (fireLikelihood == "Somewhat Likely") {
+      fireStatus = 0.67;
+    } else if (fireLikelihood == "Likely") {
+      fireStatus = 1;
+    } else {
+      fireStatus = 0;
+    }
+    setStatus({
+      mask: clamp(maskStatus, 0, 1),
+      covid: clamp(covidStatus, 0, 1),
+      fire: fireStatus,
+    });
+    console.log(status);
+  }, [maskData, covidData, fireLikelihood]);
+
+  // Helper function to prevent statuses from exceeding 1.0
+  function clamp(num, min, max) {
+    return num <= min ? min : num >= max ? max : num;
+  }
+
+  useEffect(() => {
+    console.log("status changed");
+    let sumStatus = status.covid + status.mask + status.fire;
+    if (0 <= sumStatus && sumStatus < 1) {
+      setPhrase("Looks like you can head out today!");
+    } else if (1 <= sumStatus && sumStatus < 2) {
+      setPhrase("Hmmm... might be be worth staying indoors today");
+    } else if (2 <= sumStatus && sumStatus <= 3) {
+      setPhrase("Please, for the love of God, don't leave your home.");
+    }
+    console.log(phrase);
+  }, [status]);
+
   return (
     <div className="Dashboard">
-      <h1>Hmmmm... might be best to stay inside today.</h1>
+      <h1>{phrase}</h1>
       <div className="DataBlocks">
-        {maskData !== null && (
-          <DataBlock
-            text={"Probability of unmasked encounter"}
-            data={maskData}
-          />
-        )}
-        {covidData !== null && (
-          <DataBlock text={"COVID cases in your county"} data={covidData} />
-        )}
-        {fireLikelihood !== null && (
-          <DataBlock
-            text={"Probability of local wildfire today"}
-            data={fireLikelihood}
-          />
-        )}
+        <DataBlock
+          text={"Probability of unmasked encounter"}
+          data={maskData.toString() + "%"}
+        />
+        <DataBlock
+          text={"Cumulative COVID cases in your county"}
+          data={covidData}
+        />
+        <DataBlock
+          text={"Probability of local wildfire today"}
+          data={fireLikelihood}
+        />
       </div>
     </div>
   );

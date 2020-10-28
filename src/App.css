@@ -33,6 +33,7 @@ Header {
 }
 
 .Map-Container {
+  /* border: 1px solid black; */
   border-radius: 20px;
   background-color: grey;
   max-width: 1080px;
