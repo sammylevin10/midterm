@@ -10,8 +10,8 @@ function Dashboard({ location }) {
   const [fireLikelihood, setFireLikelihood] = useState("Loading...");
   const [center, setCenter] = useState(null);
   const [zip, setZip] = useState(null);
-  const [maskData, setMaskData] = useState("Loading...");
-  const [covidData, setCovidData] = useState("Loading...");
+  const [maskData, setMaskData] = useState(0);
+  const [covidData, setCovidData] = useState(0);
   const [status, setStatus] = useState({
     mask: 0.5,
     covid: 0.5,
@@ -135,14 +135,28 @@ function Dashboard({ location }) {
         <DataBlock
           text={"Probability of unmasked encounter"}
           data={maskData.toString() + "%"}
+          color={184}
+          myStatus={status.mask}
+          link={
+            "https://www.nytimes.com/interactive/2020/07/17/upshot/coronavirus-face-mask-map.html"
+          }
         />
+
         <DataBlock
           text={"Cumulative COVID cases in your county"}
           data={covidData}
+          myStatus={status.covid}
+          color={114}
+          link={
+            "https://www.nytimes.com/interactive/2020/us/coronavirus-us-cases.html"
+          }
         />
         <DataBlock
           text={"Probability of local wildfire today"}
           data={fireLikelihood}
+          color={0}
+          myStatus={status.fire}
+          link={"https://www.getambee.com/api/fire"}
         />
       </div>
     </div>

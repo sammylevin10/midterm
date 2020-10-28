@@ -47,9 +47,7 @@ function MapDisplay({ location }) {
               bootstrapURLKeys={{ key: process.env.REACT_APP_MAPS_KEY }}
               defaultCenter={center}
               defaultZoom={13}
-            >
-              <p>My Marker</p>
-            </GoogleMapReact>
+            ></GoogleMapReact>
           )}
         </div>
       </div>
