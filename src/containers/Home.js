@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import Header from "../components/Header";
 import MapDisplay from "../components/MapDisplay";
 import Dashboard from "../components/Dashboard";
-import Geolocation from "../components/Geolocation";
 import { geolocated } from "react-geolocated";
 
 function Home(props) {
@@ -20,7 +19,6 @@ function Home(props) {
       <div className="Home">
         <MapDisplay location={location} />
         <Dashboard location={location} />
-        <Geolocation />
       </div>
     </div>
   );
