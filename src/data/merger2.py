@@ -1,16 +1,17 @@
 import csv
 mapping = {}
 
-file = open("ZIP-COUNTY-FIPS_2018-03.csv", "r")
+file = open("/Users/sammylevin/dynamic-web/midterm/src/data/county-fips.csv", "r")
 
 for line in file:
     line = line.split(",")
     mapping[line[1]] = line[0]
 # mapping the county to zip codes
 
-mask_file = open("mask-use-by-county.csv", "r")
+mask_file = open(
+    "/Users/sammylevin/dynamic-web/midterm/src/data/us-counties.csv", "r")
 
-new_file = open("results.csv", "w")
+new_file = open("coviddata.csv", "w")
 writer = csv.writer(new_file)
 elements = []
 # elements is list of lists, each list contained in list is a line to the CSV
@@ -24,13 +25,13 @@ for mask_line in mask_file:
     if first:
         first = False
         sub_ele.append("Zip Code")
-        sub_ele += mask_line[1:]
+        sub_ele += mask_line[4:]
         elements.append(sub_ele)
     else:
         try:
-            zip_code = mapping[mask_line[0]]
+            zip_code = mapping[mask_line[3]]
             sub_ele.append(zip_code)
-            sub_ele += mask_line[1:]
+            sub_ele += mask_line[4:]
             elements.append(sub_ele)
         except:
             print("Error, county code #", mask_line[0])

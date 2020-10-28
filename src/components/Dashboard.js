@@ -3,14 +3,34 @@ import axios from "axios";
 import DataBlock from "../components/DataBlock";
 import Geocode from "react-geocode";
 import { readString } from "react-papaparse";
-import MaskData from "../components/DataBlock";
+import Papa from "papaparse";
+import fs from "fs";
 
 function Dashboard({ location }) {
   const [fireData, setFireData] = useState(null);
   const [fireLikelihood, setFireLikelihood] = useState("Loading...");
   const [center, setCenter] = useState(null);
   const [zip, setZip] = useState(null);
+  const [maskDataRaw, setMaskDataRaw] = useState(null);
   const [maskData, setMaskData] = useState("Loading...");
+  const [covidData, setCovidData] = useState("Loading...");
+
+  // This is a failed attempt to get the csv files
+  useEffect(() => {
+    async function getData() {
+      const response = await fetch("../data/maskdata.csv");
+      console.log("RESPONSE", response);
+      const reader = response.body.getReader();
+      const result = await reader.read(); // raw array
+      const decoder = new TextDecoder("utf-8");
+      const csv = decoder.decode(result.value); // the csv text
+      const results = Papa.parse(csv, { header: true }); // object with { data, errors, meta }
+      const rows = results.data;
+      setMaskDataRaw(rows);
+    }
+    getData();
+    console.log("RAW DATA", maskDataRaw);
+  }, []);
 
   useEffect(() => {
     if (location) {
@@ -59,21 +79,31 @@ function Dashboard({ location }) {
 
   useEffect(() => {
     if (zip != null) {
-      const test_csv = `ZIP,NEVER,RARELY,SOMETIMES,FREQUENTLY,ALWAYS
+      const test_csv_1 = `ZIP,NEVER,RARELY,SOMETIMES,FREQUENTLY,ALWAYS
       11201,0.035,0.034,0.058,0.141,0.732
       36051,0.053,0.074,0.134,0.295,0.444
       36578,0.083,0.059,0.098,0.323,0.436`;
-      const read_csv = readString(test_csv);
-      for (var i = 1; i < read_csv.data.length; i++) {
-        if (read_csv.data[i][0].includes(zip)) {
-          let probability = 100 * (1 - read_csv.data[i][5]);
-          let percentage = probability.toString() + "%";
-          setMaskData(percentage);
+      const test_csv_2 = `ZIP,CASES,DEATHS
+      11201,263694,23969
+      36578,6694,69
+      36027,1033,9
+      36793,843,14
+      35952,1942,25`;
+      const read_csv_1 = readString(test_csv_1);
+      for (var i = 1; i < read_csv_1.data.length; i++) {
+        if (read_csv_1.data[i][0].includes(zip)) {
+          setMaskData(read_csv_1.data[i][1]);
+        }
+      }
+      const read_csv_2 = readString(test_csv_2);
+      for (var i = 1; i < read_csv_2.data.length; i++) {
+        if (read_csv_2.data[i][0].includes(zip)) {
+          setCovidData(read_csv_2.data[i][1]);
         }
         // console.log(read_csv.data[i][0]);
       }
     }
-  }, [zip]);
+  }, [zip, maskDataRaw]);
 
   return (
     <div className="Dashboard">
@@ -85,7 +115,9 @@ function Dashboard({ location }) {
             data={maskData}
           />
         )}
-        <DataBlock text={"Probability of COVID encounter"} data={2} />
+        {covidData !== null && (
+          <DataBlock text={"COVID cases in your county"} data={covidData} />
+        )}
         {fireLikelihood !== null && (
           <DataBlock
             text={"Probability of local wildfire today"}
