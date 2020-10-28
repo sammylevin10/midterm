@@ -5,6 +5,7 @@ import Geocode from "react-geocode";
 import { readString } from "react-papaparse";
 import Papa from "papaparse";
 import fs from "fs";
+import CovidJSON from "./data/CovidJSON";
 
 function Dashboard({ location }) {
   const [fireData, setFireData] = useState(null);
@@ -79,6 +80,7 @@ function Dashboard({ location }) {
 
   useEffect(() => {
     if (zip != null) {
+      console.log("COVID JSON", CovidJSON[0].ZIP);
       const test_csv_1 = `ZIP,NEVER,RARELY,SOMETIMES,FREQUENTLY,ALWAYS
       11201,0.035,0.034,0.058,0.141,0.732
       36051,0.053,0.074,0.134,0.295,0.444
@@ -96,11 +98,12 @@ function Dashboard({ location }) {
         }
       }
       const read_csv_2 = readString(test_csv_2);
-      for (var i = 1; i < read_csv_2.data.length; i++) {
-        if (read_csv_2.data[i][0].includes(zip)) {
-          setCovidData(read_csv_2.data[i][1]);
+      var len = Object.keys(CovidJSON).length;
+      // console.log(CovidJSON[0].ZIP);
+      for (var i = 0; i < len; i++) {
+        if (CovidJSON[i].ZIP == zip) {
+          setCovidData(CovidJSON[i].CASES);
         }
-        // console.log(read_csv.data[i][0]);
       }
     }
   }, [zip, maskDataRaw]);
